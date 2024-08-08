@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
 import slugify from 'slugify';
+import IndianFlag from './IndianFlag';
 
 const Greeting = () => {
   const [name, setName] = useState<string>('');
@@ -48,7 +49,8 @@ const Greeting = () => {
     <div class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-orange-500 via-white to-green-600">
       <div class="flex flex-col items-center justify-center max-w-md w-full p-6">
         <div class="bg-gradient-to-r from-white via-gray-100 to-gray-200 p-6 rounded-lg shadow-lg w-full text-center">
-          <p class="text-6xl mb-6">🇮🇳</p>
+          <IndianFlag />
+          <br />
           <h2 class="text-3xl font-bold text-gray-800 mb-4">Independence Day Greeting</h2>
           <p class="text-lg text-gray-700 mb-6">Enter your name to receive a personalized greeting</p>
           <form onSubmit={handleSubmit} class="bg-gradient-to-r from-orange-500 to-green-800 text-white p-8 rounded-lg shadow-md w-full">
@@ -72,7 +74,8 @@ const Greeting = () => {
             </button>
           </form>
           <div class="mt-10">
-          <p class="text-sm text-gray-700 mb-6">Built Using Preact and Vite.js<br /><a href="https://github.com/mskian/independence-day-app" target="_blank" rel="nofollow noopener" class="text-rose-900 hover:underline">
+          <hr class="border-t-2 border-gray-800 my-8" />
+          <p class="text-sm text-gray-700 mb-6">Built Using 🥳 Preact and Vite 🔥<br />🥤 <a href="https://github.com/mskian/independence-day-app" target="_blank" rel="nofollow noopener" class="text-rose-900 hover:underline">
            View on GitHub</a>
           </p>
           </div>

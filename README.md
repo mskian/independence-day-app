@@ -11,7 +11,35 @@ A special 🇮🇳 Happy Independence Day greeting for your friends and Family M
 - Vite.js
 - Typescript
 - Tailwind CSS
-- Free Hosting on Netlify : **<https://indiawish.netlify.app/>**
+- 🇮🇳 CSS Flag
+- Hosting at Netlify : **<https://indiawish.netlify.app/>**  
+
+## Setup and Usage
+
+- Clone or Download the Repo
+
+```sh
+git clone https://github.com/mskian/independence-day-app
+cd independence-day-app
+```
+
+- Install dependencies
+
+```sh
+pnpm install
+```
+
+- Test
+
+```sh
+pnpm dev
+```
+
+- Build the App
+
+```sh
+pnpm build
+```
 
 ## LICENSE
 

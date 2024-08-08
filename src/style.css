@@ -148,3 +148,109 @@ html {
 	margin-top: 0.5rem;
 	text-align: right;
   }
+  .custom-flag-container {
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding-top: 20px;
+}
+
+.custom-flag-pole {
+	width: 5px;
+	height: 100px;
+	background-color: #000;
+	border-radius: 2px;
+	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.custom-flag {
+	width: 96px;
+	height: 64px;
+	box-shadow: 0px 0px 90px 1px #989;
+    background-color: transparent;
+    position: relative;
+}
+
+.custom-stripe {
+	height: 21.33px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.custom-stripe-orange {
+	background-color: #FF9933;
+}
+
+.custom-stripe-white {
+	background-color: #FFFFFF;
+	position: relative;
+}
+
+.custom-stripe-green {
+	background-color: #138808;
+}
+
+.custom-ashoka-chakra {
+	height: 22px;
+	width: 22px;
+	border: 1px solid darkblue;
+	border-radius: 50%;
+	position: relative;
+	margin: 0 auto;
+}
+
+.custom-ashoka-chakra .line {
+	height: 100%;
+	width: 1px;
+	display: inline-block;
+	position: absolute;
+	left: 50%;
+	background: darkblue;
+}
+
+.custom-ashoka-chakra .line:nth-child(1) { transform: rotate(15deg); }
+.custom-ashoka-chakra .line:nth-child(2) { transform: rotate(30deg); }
+.custom-ashoka-chakra .line:nth-child(3) { transform: rotate(45deg); }
+.custom-ashoka-chakra .line:nth-child(4) { transform: rotate(60deg); }
+.custom-ashoka-chakra .line:nth-child(5) { transform: rotate(75deg); }
+.custom-ashoka-chakra .line:nth-child(6) { transform: rotate(90deg); }
+.custom-ashoka-chakra .line:nth-child(7) { transform: rotate(105deg); }
+.custom-ashoka-chakra .line:nth-child(8) { transform: rotate(120deg); }
+.custom-ashoka-chakra .line:nth-child(9) { transform: rotate(135deg); }
+.custom-ashoka-chakra .line:nth-child(10) { transform: rotate(150deg); }
+.custom-ashoka-chakra .line:nth-child(11) { transform: rotate(165deg); }
+.custom-ashoka-chakra .line:nth-child(12) { transform: rotate(180deg); }
+
+@keyframes custom-wave {
+	0% { transform: rotate(0deg); }
+	25% { transform: rotate(4deg); }
+	50% { transform: rotate(-4deg); }
+	75% { transform: rotate(4deg); }
+	100% { transform: rotate(0deg); }
+}
+
+.wave {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-image: linear-gradient(
+        128deg, rgba(89, 72, 21, 0) 39%,
+        rgba(250, 245, 245, 0.8474025974025974) 
+        46%, rgba(89, 72, 21, 0) 53%);
+    animation-name: wavy;
+    animation-duration: 10s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+ 
+@keyframes wavy {
+    0% {
+        background-position: -400px 0px, 
+        -400px 0px, -400px 0px, -400px 0px;
+    }
+    100% {
+        background-position: 800px 0px, 
+        800px 0px, 800px 0px, 800px 0px;
+    }
+}

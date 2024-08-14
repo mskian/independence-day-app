@@ -12,6 +12,7 @@ A special 🇮🇳 Happy Independence Day greeting for your friends and Family M
 - Typescript
 - Tailwind CSS
 - 🇮🇳 CSS Flag
+- Greeting Messages in English, Tamil, Hindi, Telugu, Malayalam, Kannada
 - Hosting at Netlify : **<https://indiawish.netlify.app/>**  
 
 ## Setup and Usage

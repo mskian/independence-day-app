@@ -65,6 +65,22 @@ const GreetingPage = ({ name }: GreetingPageProps & JSX.IntrinsicElements['div']
   const currentUrl = window.location.href;
   const basename = `independence-day-greeting-${sanitizedName.toLowerCase().replace(/\s+/g, '-')}.png`;
 
+useEffect(() => {
+  const pathname = window.location.pathname;
+  const decoded = decodeURIComponent(pathname.replace(/^\/+/, ''));
+  
+  const correctSlug = slugify(DOMPurify.sanitize(decoded).trim(), {
+    replacement: '-',
+    remove: /[*+~.()'"!:@]/g,
+    lower: true,
+    strict: true,
+  });
+
+  if (decoded && pathname !== `/${correctSlug}`) {
+    window.location.replace(`/${correctSlug}`);
+  }
+}, []);
+
   const loadFont = async () => {
     try {
       const font = new FontFace(

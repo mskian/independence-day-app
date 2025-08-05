@@ -75,8 +75,8 @@ const Greeting = () => {
           </form>
           <div class="mt-10">
           <hr class="border-t-2 border-gray-800 my-8" />
-          <p class="text-sm text-gray-700 mb-6">Built Using 🥳 Preact and Vite 🔥<br />🥤 <a href="https://github.com/mskian/independence-day-app" target="_blank" rel="nofollow noopener" class="text-rose-900 hover:underline">
-           View on GitHub</a>
+          <p class="text-sm text-gray-700 mb-6">💜 Built Using 🥳 Preact 🔥<br />🥤 <a href="https://github.com/mskian/independence-day-app" target="_blank" rel="nofollow noopener" class="text-rose-900 hover:underline">
+           Dev by Santhosh Veer</a>
           </p>
           </div>
         </div>

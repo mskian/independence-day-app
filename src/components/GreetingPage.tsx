@@ -1,5 +1,5 @@
 import { JSX } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useState, useRef } from 'preact/hooks';
 import DOMPurify from 'dompurify';
 import slugify from 'slugify';
 import IndianFlag from './IndianFlag';
@@ -27,107 +27,152 @@ const sanitizeName = (name: string) => {
 };
 
 const getFormattedTime = () => {
-  const options: Intl.DateTimeFormatOptions = {
+  return new Intl.DateTimeFormat('en-IN', {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
     timeZone: 'Asia/Kolkata',
-  };
-  const formatter = new Intl.DateTimeFormat('en-IN', options);
-  return formatter.format(new Date());
+  }).format(new Date());
 };
 
-const Snackbar = ({ message, onClose }: { message: string; onClose: () => void }) => (
-  <div class="fixed bottom-4 right-4 bg-gray-800 text-white p-4 rounded-lg shadow-lg flex items-center space-x-4 max-w-72 w-full">
-    <span class="flex-1">{message}</span>
-    <button onClick={onClose} class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600">
+const Snackbar = ({
+  message,
+  onClose,
+}: {
+  message: string;
+  onClose: () => void;
+}) => (
+  <div class="fixed bottom-6 right-4 md:right-6 z-50 w-[calc(100%-2rem)] max-w-sm bg-cyan-600 text-white px-5 py-4 rounded-2xl shadow-xl flex items-center justify-between gap-4 animate-slide-in">
+    <span class="text-sm font-bold flex-1">{message}</span>
+    <button
+      onClick={onClose}
+      class="p-2 text-red-800 transition-colors"
+      aria-label="Close notification"
+    >
       &times;
     </button>
   </div>
 );
 
-const GreetingPage = (props: GreetingPageProps & JSX.IntrinsicElements['div']) => {
-  const [loading, setLoading] = useState(true);
-  const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
-  const [toggleState, setToggleState] = useState(false);
-  const [language, setLanguage] = useState('en');
-  const { name } = props;
+const GreetingPage = ({ name }: GreetingPageProps & JSX.IntrinsicElements['div']) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const sanitizedName = sanitizeName(name || '');
+  const [imageUrl, setImageUrl] = useState('');
+  const [language, setLanguage] = useState('en');
+  const [toggleState, setToggleState] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
   const currentTime = getFormattedTime();
   const currentUrl = window.location.href;
+  const basename = `independence-day-greeting-${sanitizedName.toLowerCase().replace(/\s+/g, '-')}.png`;
 
-  useEffect(() => {
-    const savedToggleState = localStorage.getItem('toggleState');
-    if (savedToggleState !== null) {
-      setToggleState(JSON.parse(savedToggleState));
-    }
-
-    const savedLanguage = localStorage.getItem('selectedLanguage');
-    if (savedLanguage) {
-      setLanguage(savedLanguage);
-    }
-
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-
-    const metaTitle = `${sanitizedName ? `${sanitizedName}` : ''} - Independence Day Greeting 🇮🇳`;
-    const metaDescription = `Wishing you a very Happy Independence Day From ${sanitizedName ? `${sanitizedName}` : ''} - Check out your personalized greeting page.`;
-
-    document.title = metaTitle;
-
-    let metaDescriptionTag = document.querySelector('meta[name="description"]') as HTMLMetaElement;
-    if (metaDescriptionTag) {
-      metaDescriptionTag.content = metaDescription;
-    } else {
-      metaDescriptionTag = document.createElement('meta');
-      metaDescriptionTag.name = 'description';
-      metaDescriptionTag.content = metaDescription;
-      document.head.appendChild(metaDescriptionTag);
-    }
-
-    let linkCanonicalTag = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
-    if (linkCanonicalTag) {
-      linkCanonicalTag.href = currentUrl;
-    } else {
-      linkCanonicalTag = document.createElement('link');
-      linkCanonicalTag.rel = 'canonical';
-      linkCanonicalTag.href = currentUrl;
-      document.head.appendChild(linkCanonicalTag);
-    }
-
-    return () => {
-      document.title = 'Independence Day Greeting 🇮🇳';
-      const metaDescriptionTag = document.querySelector('meta[name="description"]') as HTMLMetaElement;
-      if (metaDescriptionTag) metaDescriptionTag.content = '';
-      const linkCanonicalTag = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
-      if (linkCanonicalTag) linkCanonicalTag.href = '';
-    };
-  }, [sanitizedName, currentUrl]);
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(currentUrl)
-      .then(() => setSnackbarMessage('URL copied'))
-      .catch(() => setSnackbarMessage('Failed to copy URL.'));
-  };
-
-  const redirectToHome = () => {
+  const loadFont = async () => {
     try {
-      window.location.href = '/';
+      const font = new FontFace(
+        'Anek Tamil',
+        'url(https://fonts.gstatic.com/s/anektamil/v4/XLYJIZH2bYJHGYtPGSbUB8JKTp-_9n55SsLHW0WZez6TjtkDu3uNnCB6qw.ttf)'
+      );
+      await font.load();
+      document.fonts.add(font);
     } catch (error) {
-      console.error('Error redirecting to home:', error);
-      setSnackbarMessage('Failed to redirect. Please try again.');
+      console.error('Font load failed:', error);
     }
   };
 
+  const generateImage = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    canvas.width = 1080;
+    canvas.height = 1080;
+
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
+    image.src = './independence-day-2025.png';
+
+    await new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = () => reject(new Error('Image load failed'));
+    });
+
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    await loadFont();
+
+    context.font = '600 30pt Anek Tamil';
+    context.fillStyle = '#1e824c';
+    context.textAlign = 'center';
+    context.fillText(sanitizedName, canvas.width / 2, 900);
+
+    const dataURL = canvas.toDataURL('image/png');
+    setImageUrl(dataURL);
+  };
+
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    generateImage().catch(err => {
+      console.error('Image generation failed:', err);
+      setSnackbarMessage('Error generating image. Please refresh.');
+    });
+  }, [sanitizedName]);
+
+useEffect(() => {
+  const title = `${sanitizedName} - Independence Day Greeting 🇮🇳`;
+  const description = `Wishing you a very Happy Independence Day From ${sanitizedName}`;
+  const ogImg = `https://img.sanweb.info/india/india/?name=${encodeURIComponent(sanitizedName)}`;
+  const ogAlt = messages[language].greeting || 'Independence Day Greeting';
+
+  document.title = title;
+
+  const metaDesc = document.querySelector('meta[name="description"]') || document.createElement('meta');
+  metaDesc.setAttribute('name', 'description');
+  metaDesc.setAttribute('content', description);
+  if (!metaDesc.parentNode) document.head.appendChild(metaDesc);
+
+  const link = document.querySelector('link[rel="canonical"]') || document.createElement('link');
+  link.setAttribute('rel', 'canonical');
+  link.setAttribute('href', currentUrl);
+  if (!link.parentNode) document.head.appendChild(link);
+
+  const ogTags = [
+    { property: 'og:title', content: title },
+    { property: 'og:description', content: description },
+    { property: 'og:url', content: currentUrl },
+    { property: 'og:image', content: ogImg },
+    { property: 'og:image:alt', content: ogAlt }
+  ];
+
+  ogTags.forEach(({ property, content }) => {
+    let tag = document.querySelector(`meta[property="${property}"]`) || document.createElement('meta');
+    tag.setAttribute('property', property);
+    tag.setAttribute('content', content);
+    if (!tag.parentNode) document.head.appendChild(tag);
+  });
+
+  const twitterTags = [
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: title },
+    { name: 'twitter:description', content: description },
+    { name: 'twitter:image', content: ogImg },
+    { name: 'twitter:url', content: currentUrl }
+  ];
+
+  twitterTags.forEach(({ name, content }) => {
+    let tag = document.querySelector(`meta[name="${name}"]`) || document.createElement('meta');
+    tag.setAttribute('name', name);
+    tag.setAttribute('content', content);
+    if (!tag.parentNode) document.head.appendChild(tag);
+  });
+
+  return () => {
+    document.title = 'Independence Day Greeting 🇮🇳';
+  };
+}, [sanitizedName, currentUrl, language]);
+
+  useEffect(() => {
     if (snackbarMessage) {
-      timer = setTimeout(() => {
-        setSnackbarMessage(null);
-      }, 2500);
+      const timeout = setTimeout(() => setSnackbarMessage(null), 2500);
+      return () => clearTimeout(timeout);
     }
-    return () => clearTimeout(timer);
   }, [snackbarMessage]);
 
   useEffect(() => {
@@ -143,7 +188,17 @@ const GreetingPage = (props: GreetingPageProps & JSX.IntrinsicElements['div']) =
     setLanguage(target.value);
   };
 
-  const messages = {
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(currentUrl)
+      .then(() => setSnackbarMessage('URL copied'))
+      .catch(() => setSnackbarMessage('Failed to copy URL.'));
+  };
+
+  const redirectToHome = () => {
+    window.location.href = '/';
+  };
+
+const messages = {
     en: {
       greeting: `Wishing you a very Happy Independence Day 🇮🇳`,
       message1: `Let us remember the sacrifices of our great leaders and honor their legacy by working towards a brighter future for our nation.`,
@@ -178,80 +233,88 @@ const GreetingPage = (props: GreetingPageProps & JSX.IntrinsicElements['div']) =
 
   return (
     <div class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-orange-500 via-white to-green-600 p-4">
-      {loading ? (
-        <div class="flex items-center justify-center mb-8">
-          <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-green-800"></div>
-        </div>
-      ) : (
-        <>
-          <div class="chat-container">
-            <IndianFlag />
-            <div class="chat-box">
-              <div class="chat-bubble right shadow-md focus:outline-none transition-transform duration-200 transform hover:scale-105">
-                {sanitizedName ? `${sanitizedName} 🇮🇳` : '🇮🇳 Your Name Here'}
-                <div class="chat-time">{currentTime}</div>
-              </div>
-              <div class="chat-bubble left shadow-md focus:outline-none transition-transform duration-200 transform hover:scale-105 text-base">
-                {messages[language].greeting}
-                <div class="chat-time">{currentTime}</div>
-              </div>
-              <div class="chat-bubble right shadow-md focus:outline-none transition-transform duration-200 transform hover:scale-105 text-base">
-                {messages[language].message1}
-                <div class="chat-time">{currentTime}</div>
-              </div>
-              <div class="chat-bubble left shadow-md focus:outline-none transition-transform duration-200 transform hover:scale-105 text-base">
-                {messages[language].message2}
-                <div class="chat-time">{currentTime}</div>
-              </div>
-            </div>
+      <div class="chat-container w-full max-w-2xl">
+        <IndianFlag />
+        <div class="chat-box">
+          <div class="chat-bubble right">{sanitizedName} 🇮🇳 <div class="chat-time">{currentTime}</div></div>
+          <div class="chat-bubble left">{messages[language].greeting}<div class="chat-time">{currentTime}</div></div>
+          <div class="chat-bubble right p-0 overflow-hidden">
+            {imageUrl && (
+              <img src={imageUrl} alt="Greeting" class="w-full h-auto max-h-96 object-contain rounded-lg" />
+            )}
+            <div class="chat-time">{currentTime}</div>
           </div>
-          <div class="flex flex-col items-center space-y-3">
-            <label for="language-select" class="text-black font-bold">
-              Choose Language
-            </label>
-            <select
-              id="language-select"
-              onChange={handleLanguageChange}
-              value={language}
-              class="p-2 rounded-lg shadow-lg text-black border-2 border-black focus:outline-none focus:ring focus:border-blue-300 transition duration-200"
-            >
-              <option value="en">English</option>
-              <option value="ta">Tamil</option>
-              <option value="hi">Hindi</option>
-              <option value="te">Telugu</option>
-              <option value="ml">Malayalam</option>
-              <option value="kn">Kannada</option>
-            </select>
-          </div>
-          <br />
-          <div class="mb-4">
-            <label class="flex items-center cursor-pointer">
-              <span class="mr-2 text-lg">{toggleState ? 'Hide Options' : 'Show Options'}</span>
-              <div class="relative">
-                <input type="checkbox" checked={toggleState} onChange={() => setToggleState(!toggleState)} class="sr-only" />
-                <div class={`block w-16 h-8 rounded-full ${toggleState ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                <div class={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${toggleState ? 'transform translate-x-8' : ''}`}></div>
+          {imageUrl && (
+            <div class="chat-bubble right">
+              <div class="flex flex-col items-center">
+                <a
+                  href={imageUrl}
+                  download={basename}
+                  class="bg-gradient-to-br from-pink-500 to-orange-400 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg hover:scale-105 transition duration-200 mb-2"
+                >
+                  ⬇ Download
+                </a>
+                <div class="chat-time">{currentTime}</div>
               </div>
-            </label>
-          </div>
-          {toggleState && (
-            <div class="bg-white p-6 rounded-lg shadow-md mb-10 w-full max-w-md flex justify-between items-center space-x-4">
-              <button onClick={copyToClipboard} class="bg-gradient-to-r from-blue-400 to-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:from-blue-500 hover:to-blue-700">
-                Copy URL
-              </button>
-              <button onClick={redirectToHome} class="bg-gradient-to-r from-green-400 to-green-600 text-white px-4 py-2 rounded-lg shadow-md hover:from-green-500 hover:to-green-700">
-                Create
-              </button>
             </div>
           )}
-        </>
-      )}
-      {snackbarMessage && (
-        <Snackbar
-          message={snackbarMessage}
-          onClose={() => setSnackbarMessage(null)}
-        />
-      )}
+          <div class="chat-bubble left">{messages[language].message1}<div class="chat-time">{currentTime}</div></div>
+          <div class="chat-bubble left">{messages[language].message2}<div class="chat-time">{currentTime}</div></div>
+        </div>
+      </div>
+
+      <canvas ref={canvasRef} style={{ position: 'absolute', left: '-9999px', width: '1080px', height: '1080px' }} />
+
+  <div class="mt-4 space-y-2 max-w-xs w-full">
+  <label for="language-select" class="block text-sm font-semibold text-neutral-800">
+    🌐 Choose Language
+  </label>
+
+  <select
+    id="language-select"
+    onChange={handleLanguageChange}
+    value={language}
+    class="w-full px-4 py-3 text-sm text-neutral-900 bg-white border border-neutral-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+  >
+    <option value="en">English</option>
+    <option value="ta">Tamil</option>
+    <option value="hi">Hindi</option>
+    <option value="te">Telugu</option>
+    <option value="ml">Malayalam</option>
+    <option value="kn">Kannada</option>
+  </select>
+  </div>
+
+      <div class="mt-6 mb-8 max-w-2xl w-full">
+        <label class="flex items-center justify-center space-x-2">
+          <span>{toggleState ? 'Hide Options' : 'Show Options'}</span>
+          <input type="checkbox" checked={toggleState} onChange={() => setToggleState(!toggleState)} class="sr-only" />
+          <div class={`relative w-16 h-8 rounded-full ${toggleState ? 'bg-blue-600' : 'bg-red-500'}`}>
+            <div class={`absolute left-1 top-1 w-6 h-6 bg-white rounded-full transition ${toggleState ? 'translate-x-8' : ''}`}></div>
+          </div>
+        </label>
+      </div>
+
+  {toggleState && (
+   <div class="bg-white p-7 mb-10 rounded-2xl shadow-xl w-full max-w-md flex flex-col md:flex-row items-center justify-between gap-4 transition-all">
+    
+    <button
+      onClick={copyToClipboard}
+      class="w-full md:w-auto flex-1 bg-blue-600 dark:bg-blue-500 text-white font-medium px-5 py-3 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 active:scale-95 transition-all shadow hover:shadow-md"
+    >
+      📋 Copy URL
+    </button>
+    
+    <button
+      onClick={redirectToHome}
+      class="w-full md:w-auto flex-1 bg-emerald-600 dark:bg-emerald-500 text-white font-medium px-5 py-3 rounded-xl hover:bg-emerald-700 dark:hover:bg-emerald-600 active:scale-95 transition-all shadow hover:shadow-md"
+    >
+      ✨ Create New
+    </button>
+   </div>
+  )}
+
+      {snackbarMessage && <Snackbar message={snackbarMessage} onClose={() => setSnackbarMessage(null)} />}
     </div>
   );
 };

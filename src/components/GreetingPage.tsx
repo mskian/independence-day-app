@@ -135,49 +135,48 @@ useEffect(() => {
   const title = `${sanitizedName} - Independence Day Greeting 🇮🇳`;
   const description = `Wishing you a very Happy Independence Day From ${sanitizedName}`;
   const ogImg = `https://img.sanweb.info/india/india/?name=${encodeURIComponent(sanitizedName)}`;
-  const ogAlt = messages[language].greeting || 'Independence Day Greeting';
+  const ogAlt = messages[language]?.greeting || 'Independence Day Greeting';
 
   document.title = title;
 
-  const metaDesc = document.querySelector('meta[name="description"]') || document.createElement('meta');
-  metaDesc.setAttribute('name', 'description');
-  metaDesc.setAttribute('content', description);
-  if (!metaDesc.parentNode) document.head.appendChild(metaDesc);
+  const setMetaTag = (attr: 'name' | 'property', key: string, content: string) => {
+    let tag = document.querySelector(`meta[${attr}="${key}"]`);
+    if (tag) {
+      tag.setAttribute('content', content);
+    } else {
+      tag = document.createElement('meta');
+      tag.setAttribute(attr, key);
+      tag.setAttribute('content', content);
+      document.head.appendChild(tag);
+    }
+  };
 
-  const link = document.querySelector('link[rel="canonical"]') || document.createElement('link');
-  link.setAttribute('rel', 'canonical');
-  link.setAttribute('href', currentUrl);
-  if (!link.parentNode) document.head.appendChild(link);
+  const setLinkTag = (rel: string, href: string) => {
+    let link = document.querySelector(`link[rel="${rel}"]`);
+    if (link) {
+      link.setAttribute('href', href);
+    } else {
+      link = document.createElement('link');
+      link.setAttribute('rel', rel);
+      link.setAttribute('href', href);
+      document.head.appendChild(link);
+    }
+  };
 
-  const ogTags = [
-    { property: 'og:title', content: title },
-    { property: 'og:description', content: description },
-    { property: 'og:url', content: currentUrl },
-    { property: 'og:image', content: ogImg },
-    { property: 'og:image:alt', content: ogAlt }
-  ];
+  setLinkTag('canonical', currentUrl);
 
-  ogTags.forEach(({ property, content }) => {
-    let tag = document.querySelector(`meta[property="${property}"]`) || document.createElement('meta');
-    tag.setAttribute('property', property);
-    tag.setAttribute('content', content);
-    if (!tag.parentNode) document.head.appendChild(tag);
-  });
+  setMetaTag('name', 'description', description);
 
-  const twitterTags = [
-    { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: title },
-    { name: 'twitter:description', content: description },
-    { name: 'twitter:image', content: ogImg },
-    { name: 'twitter:url', content: currentUrl }
-  ];
+  setMetaTag('property', 'og:title', title);
+  setMetaTag('property', 'og:description', description);
+  setMetaTag('property', 'og:url', currentUrl);
+  setMetaTag('property', 'og:image', ogImg);
+  setMetaTag('property', 'og:image:alt', ogAlt);
 
-  twitterTags.forEach(({ name, content }) => {
-    let tag = document.querySelector(`meta[name="${name}"]`) || document.createElement('meta');
-    tag.setAttribute('name', name);
-    tag.setAttribute('content', content);
-    if (!tag.parentNode) document.head.appendChild(tag);
-  });
+  setMetaTag('name', 'twitter:card', 'summary_large_image');
+  setMetaTag('name', 'twitter:title', title);
+  setMetaTag('name', 'twitter:description', description);
+  setMetaTag('name', 'twitter:image', ogImg);
 
   return () => {
     document.title = 'Independence Day Greeting 🇮🇳';

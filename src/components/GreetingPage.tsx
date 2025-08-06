@@ -1,5 +1,6 @@
 import { JSX } from 'preact';
 import { useEffect, useState, useRef } from 'preact/hooks';
+import { Share2, X, Copy, Phone, Send, Download } from 'lucide-preact';
 import DOMPurify from 'dompurify';
 import slugify from 'slugify';
 import IndianFlag from './IndianFlag';
@@ -58,9 +59,15 @@ const GreetingPage = ({ name }: GreetingPageProps & JSX.IntrinsicElements['div']
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sanitizedName = sanitizeName(name || '');
   const [imageUrl, setImageUrl] = useState('');
-  const [language, setLanguage] = useState('en');
-  const [toggleState, setToggleState] = useState(false);
+  const [language, setLanguage] = useState(() => {
+    return localStorage.getItem('selectedLanguage') || 'en';
+  });
+  const [toggleState, setToggleState] = useState(() => {
+    const saved = localStorage.getItem('toggleState');
+    return saved ? JSON.parse(saved) : false;
+  });
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
+  const [shareBarOpen, setShareBarOpen] = useState(false);
   const currentTime = getFormattedTime();
   const currentUrl = window.location.href;
   const basename = `independence-day-greeting-${sanitizedName.toLowerCase().replace(/\s+/g, '-')}.png`;
@@ -262,19 +269,20 @@ const messages = {
           {imageUrl && (
             <div class="chat-bubble right">
               <div class="flex flex-col items-center">
-                <a
-                  href={imageUrl}
-                  download={basename}
-                  class="bg-gradient-to-br from-pink-500 to-orange-400 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg hover:scale-105 transition duration-200 mb-2"
-                >
-                  ⬇ Download
-                </a>
+               <a
+                href={imageUrl}
+                download={basename}
+                class="flex items-center justify-center gap-2 bg-gradient-to-br from-pink-500 to-orange-400 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg hover:scale-105 transition duration-200 mb-2"
+               >
+                <Download size={20} />
+                <span>Download</span>
+              </a>
                 <div class="chat-time">{currentTime}</div>
               </div>
             </div>
           )}
           <div class="chat-bubble left">{messages[language].message1}<div class="chat-time">{currentTime}</div></div>
-          <div class="chat-bubble left">{messages[language].message2}<div class="chat-time">{currentTime}</div></div>
+          <div class="chat-bubble right">{messages[language].message2}<div class="chat-time">{currentTime}</div></div>
         </div>
       </div>
 
@@ -292,8 +300,8 @@ const messages = {
     class="w-full px-4 py-3 text-sm text-neutral-900 bg-white border border-neutral-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
   >
     <option value="en">English</option>
+     <option value="hi">Hindi</option>
     <option value="ta">Tamil</option>
-    <option value="hi">Hindi</option>
     <option value="te">Telugu</option>
     <option value="ml">Malayalam</option>
     <option value="kn">Kannada</option>
@@ -328,6 +336,56 @@ const messages = {
     </button>
    </div>
   )}
+
+  <div class="fixed bottom-4 right-4 z-50">
+  <div class="relative">
+    <button
+      onClick={() => setShareBarOpen(!shareBarOpen)}
+      class={`p-4 rounded-full shadow-lg transition-all duration-300 ${
+        shareBarOpen ? 'bg-red-500' : 'bg-blue-800'
+      } text-white flex items-center justify-center`}
+      aria-label={shareBarOpen ? 'Close share menu' : 'Open share menu'}
+    >
+      {shareBarOpen ? <X size={24} /> : <Share2 size={24} />}
+    </button>
+
+    {shareBarOpen && (
+      <div class="absolute bottom-full right-0 mb-4 flex flex-col items-center gap-3">
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(
+            `${sanitizedName} - ${messages[language].greeting} ${currentUrl}`
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-md transition-all duration-200 transform hover:scale-110"
+          aria-label="Share on WhatsApp"
+        >
+          <Phone size={24} />
+        </a>
+
+        <a
+          href={`https://t.me/share/url?url=${encodeURIComponent(
+            currentUrl
+          )}&text=${encodeURIComponent(sanitizedName + "\t" + messages[language].greeting)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="bg-blue-400 hover:bg-blue-500 text-white p-3 rounded-full shadow-md transition-all duration-200 transform hover:scale-110"
+          aria-label="Share on Telegram"
+        >
+          <Send size={24} />
+        </a>
+
+        <button
+          onClick={copyToClipboard}
+          class="bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-full shadow-md transition-all duration-200 transform hover:scale-110"
+          aria-label="Copy link"
+        >
+          <Copy size={24} />
+        </button>
+      </div>
+    )}
+      </div>
+    </div>
 
       {snackbarMessage && <Snackbar message={snackbarMessage} onClose={() => setSnackbarMessage(null)} />}
     </div>

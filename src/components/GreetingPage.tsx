@@ -21,6 +21,8 @@ const sanitizeName = (name: string) => {
   cleanName = cleanName.replace(/\s+/g, ' ');
   cleanName = cleanName.replace(/%20+/g, ' ');
   cleanName = cleanName.replace(/-+/g, ' ');
+  cleanName = cleanName.replace(/<script.*?>.*?<\/script>/gi, '');
+  cleanName = cleanName.replace(/<\?.*?\?>/gs, '');
   if (cleanName.length < 2 || cleanName.length > 36) {
     return 'Guest';
   }
@@ -71,22 +73,6 @@ const GreetingPage = ({ name }: GreetingPageProps & JSX.IntrinsicElements['div']
   const currentTime = getFormattedTime();
   const currentUrl = window.location.href;
   const basename = `independence-day-greeting-${sanitizedName.toLowerCase().replace(/\s+/g, '-')}.png`;
-
-useEffect(() => {
-  const pathname = window.location.pathname;
-  const decoded = decodeURIComponent(pathname.replace(/^\/+/, ''));
-  
-  const correctSlug = slugify(DOMPurify.sanitize(decoded).trim(), {
-    replacement: '-',
-    remove: /[*+~.()'"!:@]/g,
-    lower: true,
-    strict: true,
-  });
-
-  if (decoded && pathname !== `/${correctSlug}`) {
-    window.location.replace(`/${correctSlug}`);
-  }
-}, []);
 
   const loadFont = async () => {
     try {

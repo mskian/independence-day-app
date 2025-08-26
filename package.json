@@ -9,7 +9,7 @@
 	"dependencies": {
 		"@tailwindcss/vite": "^4.1.12",
 		"dompurify": "^3.2.6",
-		"lucide-preact": "^0.541.0",
+		"lucide-preact": "^0.542.0",
 		"preact": "^10.27.1",
 		"preact-router": "^4.1.2",
 		"slugify": "^1.6.6",

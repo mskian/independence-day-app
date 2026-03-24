@@ -7,13 +7,13 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
-		"@tailwindcss/vite": "^4.2.1",
+		"@tailwindcss/vite": "^4.2.2",
 		"dompurify": "^3.3.3",
 		"lucide-preact": "^0.577.0",
 		"preact": "^10.29.0",
 		"preact-router": "^4.1.2",
 		"slugify": "^1.6.8",
-		"tailwindcss": "^4.2.1"
+		"tailwindcss": "^4.2.2"
 	},
 	"devDependencies": {
 		"@preact/preset-vite": "^2.10.5",

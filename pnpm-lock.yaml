@@ -15,8 +15,8 @@ importers:
         specifier: ^3.4.12
         version: 3.4.12
       lucide-preact:
-        specifier: ^0.577.0
-        version: 0.577.0(preact@10.29.7)
+        specifier: ^1.26.0
+        version: 1.26.0(preact@10.29.7)
       preact:
         specifier: ^10.29.7
         version: 10.29.7
@@ -758,8 +758,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucide-preact@0.577.0:
-    resolution: {integrity: sha512-fCY59YQ2OMYWqE1V7k8HwfXyiBMHAfTI1roCOasdc+Cekya7BIObSJ/cil+tVMSbU6siv4uZlaz5twAGmkYqIQ==}
+  lucide-preact@1.26.0:
+    resolution: {integrity: sha512-Vx39SWX2JsBgbB+fgwKrzQmqsivo2b/E+4LwbDrjF0m4Oc8r0gZFWBMRvtuS8/b2eK0VRKOG+P6U4RaOS1CAmQ==}
     peerDependencies:
       preact: ^10.27.2
 
@@ -1503,7 +1503,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lucide-preact@0.577.0(preact@10.29.7):
+  lucide-preact@1.26.0(preact@10.29.7):
     dependencies:
       preact: 10.29.7
 

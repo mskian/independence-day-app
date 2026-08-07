@@ -98,7 +98,7 @@ const GreetingPage = ({ name }: GreetingPageProps & JSX.IntrinsicElements['div']
 
     const image = new Image();
     image.crossOrigin = 'anonymous';
-    image.src = './independence-day-2025.png';
+    image.src = './independence-day-2026.png';
 
     await new Promise<void>((resolve, reject) => {
       image.onload = () => resolve();
